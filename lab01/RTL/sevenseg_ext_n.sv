@@ -28,7 +28,7 @@ module  sevenseg_ext_n(input logic [6:0] data,
  endcase
 
  if(data[4]==1) begin
- segs = 7'b100_0001;
+ segs = 7'b000_0001;
  end
  
  if(data[6]==1) begin
