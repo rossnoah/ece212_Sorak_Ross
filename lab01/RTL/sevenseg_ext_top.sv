@@ -1,9 +1,9 @@
 module  sevenseg_ext_top(input logic [6:0] data,
  output logic [6:0] segs_n,
  output logic dp_n,
-  output logic selected);
+  output logic dis);
 
-assign selected = 1;
+assign dis = 0;
 sevenseg_ext_n sevseg(data, segs_n, dp_n);
 
 
