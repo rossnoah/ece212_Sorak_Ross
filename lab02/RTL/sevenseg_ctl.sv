@@ -31,7 +31,7 @@ module sevenseg_ctl(
 
     period_enb #(.PERIOD_MS(1)) U_ENB(.clk, .rst, .clr, .enb_out(enb));
 
-    counter #(.W(3)) U_CT (.clk, .rst, .enb, .q(digit));
+    counter #(.W(3)) U_CT (.clk, .rst, .enb(enb), .q(digit));
 
     dec_3_8_n U_DEC (.a(digit), .y_n(an_n));
 

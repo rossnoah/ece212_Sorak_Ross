@@ -10,7 +10,7 @@
 
 module counter_rc_mod (
     input logic clk, rst, enb,
-    output logic [3:0] q,
+    output logic [5:0] q,
     output logic cy
     );
 
