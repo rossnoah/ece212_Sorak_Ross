@@ -29,7 +29,7 @@ module dig_clock(
     output logic dp_n,
     output logic [7:0] an_n
     );
-    logic sclk
+    logic sclk;
     clkdiv #(.DIVFREQ(1000)) U_DIV (.clk, .reset(0), .sclk);
 
     sevenseg_ctl cvbnmld(.clk(sclk), .d7(7'd7), .d6(7'd6), .d5(7'd5), .d4(7'd4), .d3(7'd3), .d2(7'd2), .d1(7'd1), .d0(7'd0), .segs_n(segs_n), .dp_n(dp_n), .an_n(an_n));
