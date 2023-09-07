@@ -1,15 +1,26 @@
+//-----------------------------------------------------------------------------
+// Module Name   : counter_rc_mod
+// Project       : RTL Hardware Design and Verification using SystemVerilog
+//-----------------------------------------------------------------------------
+// Author        : John Nestor  <nestorj@lafayette.edu>
+// Created       : Jan 2022
+//-----------------------------------------------------------------------------
+// Description   : 4-bit counter with ripple carry and parameterized modulus
+//-----------------------------------------------------------------------------
 
-module mod #(parameter W=4,parameter MOD=1) (
+module counter_rc_mod (
     input logic clk, rst, enb,
-    output logic [W-1:0] out
+    output logic [3:0] q,
+    output logic cy
     );
-    
-    logic [W-1:0] q
 
-    assign out = q%MOD;
+    parameter MOD = 4'd10;
 
-    always_ff @(posedge clk)
-        if (rst)      q <= '0;
+    assign cy = (q == MOD-1) && enb;
+
+    always_ff @(posedge clk) begin
+        if (rst || cy) q <= 0;
         else if (enb) q <= q + 1;
+    end
 
-endmodule: counter
+endmodule
