@@ -22,6 +22,7 @@
 
 module dig_clock(
     input logic clk,
+    input logic toggle,
     input logic rst,
     input logic adv_hr,
     input logic adv_min,
@@ -31,7 +32,7 @@ module dig_clock(
   logic [5:0] seconds, minutes, hours, hoursMapped, ampm;
   logic enb, clr, minuteEnb, hourEnb, amEnb;
 
-  assign hoursMapped = (hours == 0) ? 12 : hours;
+  assign hoursMapped = !toggle ? ( (hours == 0) ? 12 : hours) :( ampm==1 ? hours + 12 : hours);
 
 
   logic adv_hr_db, adv_min_db, adv_hr_pulsed, adv_min_pulsed;
@@ -57,7 +58,7 @@ module dig_clock(
   dbl_dabble hourOut(.b(hoursMapped),.ones(hourOne[3:0]),.tens(hourTen[3:0]));
 
   assign ampmOne[3:0] = ampm+10;
-  assign ampmOne[6:4] = 3'b000;
+  assign ampmOne[6:4] = !toggle ? 3'b000 : 3'b100;
   assign secondOne[6:4] = 3'b000;
   assign secondTen[6:4] = 3'b000;
   assign minuteOne[6:4] = 3'b010;
