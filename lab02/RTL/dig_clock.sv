@@ -65,6 +65,6 @@ module dig_clock(
   assign minuteTen[6:4] = 3'b000;
   assign hourOne[6:4] = 3'b010;
   assign hourTen[5:4] = 2'b00;
-  assign hourTen[6] = hourTen[3:0] ? 1'b0 : 1'b1 ;
+  assign hourTen[6] = hourTen[3:0] ||toggle ? 1'b0 : 1'b1 ;
     
 endmodule
