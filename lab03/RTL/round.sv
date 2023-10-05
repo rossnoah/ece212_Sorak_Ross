@@ -5,4 +5,7 @@ module round (
     
 assign tempOut =  C2tx10[3] ? C2tx10[16:4] +1 : C2tx10[16:4];
 
+
+// assign tempOut = C2tx10[16:4];
+
 endmodule

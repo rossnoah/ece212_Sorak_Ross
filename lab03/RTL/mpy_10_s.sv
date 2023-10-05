@@ -11,19 +11,17 @@
 
 module mpy_10_s #(parameter W=8) (
 	input logic signed [W-1:0] a,
-	output logic signed [W+4-1:0] y
+	output logic signed [W+5-1:0] y
 	)
 	;
-   logic [W+3-1:0] ax8;
-   logic [W+1-1:0] ax2;
-   logic sign;
-   logic [W+3-1:0] ax2x;  // extended to match bitwith of ax8
+   logic [W+5-1:0] ax8;
+   logic [W+5-1:0] ax2;
 
-   assign sign = a[W-1];
+
 
    assign ax8 = a << 3;
    assign ax2 = a << 1;
-   assign ax2x = {{2{sign}},ax2}; // sign extend
-   assign y = ax8 + ax2x;
+
+   assign y = ax8 + ax2;
 
 endmodule: mpy_10_s
