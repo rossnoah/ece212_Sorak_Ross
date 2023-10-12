@@ -28,8 +28,8 @@ logic [6:0] temp_segs_n;
 logic [7:0] temp_an_n;
 logic temp_dp_n;
 
-lab03_top LAB3(.clk, .rst, .cf,.tmp_scl,.tmp_sda,.an_n(temp_an_n),.segs_n(temp_segs_n),.dp_n(temp_dp_n));
-dig_clock_top LAB2(.clk, .rst,.adv_hr,.adv_min,.an_n(time_an_n),.segs_n(time_segs_n),.dp_n(time_dp_n).toggle(sw[0]));
+lab03_top LAB3(.clk, .rst, .useFakeTemp(0), .cf,.tmp_scl,.tmp_sda,.an_n(temp_an_n),.segs_n(temp_segs_n),.dp_n(temp_dp_n));
+dig_clock_top LAB2(.clk, .rst,.adv_hr,.adv_min,.an_n(time_an_n),.segs_n(time_segs_n),.dp_n(time_dp_n), .toggle(sw[0]));
 
 period_enb #(.PERIOD_MS(2000)) U_ENB(.clk, .rst, .enb_out(enb));
 
@@ -48,7 +48,7 @@ always_ff @(posedge enb)
         segs_n = time_segs_n;
         an_n = time_an_n;
         dp_n = time_dp_n;
-        next = IDLE;
+        next = TIME;
 
         case (state)
             TIME: begin
@@ -56,9 +56,9 @@ always_ff @(posedge enb)
             segs_n = time_segs_n;
             an_n = time_an_n;
             dp_n = time_dp_n;
-            if(mode = 2'b00) next = TIME;
-            else if (mode = 2'b01) next = F;
-            else if (mode = 2'b10) next = C;
+            if(mode == 2'b00) next = TIME;
+            else if (mode == 2'b01) next = F;
+            else if (mode == 2'b10) next = C;
             else next = F;
             end
 
@@ -82,6 +82,16 @@ always_ff @(posedge enb)
             else if (mode == 2'b01) next = F;
             else if (mode == 2'b10) next = TIME;
             else next = TIME;
+            end
+            default : begin
+            cf = 0;
+            segs_n = time_segs_n;
+            an_n = time_an_n;
+            dp_n = time_dp_n;
+            if(mode == 2'b00) next = TIME;
+            else if (mode == 2'b01) next = F;
+            else if (mode == 2'b10) next = C;
+            else next = F;
             end
         endcase
     end

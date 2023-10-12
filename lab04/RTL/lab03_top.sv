@@ -29,7 +29,7 @@ logic[6:0] d0, d1, d2, d3, d4, d5;
 temp_sensor ts(.clk(clk), .cf, .tc(inputtemp), .rst, .d5, .d4, .d3, .d2, .d1, .d0);
 // temp_sensor ts(.clk(clk), .cf, .tc({sw15,12'b000000100000}), .rst, .d5, .d4, .d3, .d2, .d1, .d0);
     
-sevenseg_ctl ctl(.clk(clk), .d7(7'b1000000), .d6(7'b1000000), .d5, .d4, .d3, .d2, .d1, .d0, .segs_n(segs_n), .dp_n(dp_n), .an_n(an_n));
+sevenseg_ctl ctl(.clk(clk), .d7(7'b1000000), .d6(7'b1000000), .d5, .d4, .d3, .d2, .d1, .d0, .segs_n(segs_n), .dp_n(dp_n), .an_n(an_n),.rst);
 
 
  // add additional signals & instantiations here
