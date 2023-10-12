@@ -15,6 +15,9 @@ logic [2:0] counter;
 logic [1:0] mode;
 
 assign mode = sw[15:14];
+//assign mode = 2'b11;
+//assign mode[0] = sw[14];
+//assign mode[1] = sw[15];
 
 logic enb;
 logic cf;
@@ -39,7 +42,7 @@ typedef enum logic [1:0] {
 
 states_t state, next;
 
-always_ff @(posedge enb)
+always_ff @(posedge clk)
         if (rst) state <= TIME;
         else state <= next;
     
@@ -48,7 +51,7 @@ always_ff @(posedge enb)
         segs_n = time_segs_n;
         an_n = time_an_n;
         dp_n = time_dp_n;
-        next = TIME;
+        next = F;
 
         case (state)
             TIME: begin
@@ -56,43 +59,52 @@ always_ff @(posedge enb)
             segs_n = time_segs_n;
             an_n = time_an_n;
             dp_n = time_dp_n;
-            if(mode == 2'b00) next = TIME;
-            else if (mode == 2'b01) next = F;
-            else if (mode == 2'b10) next = C;
-            else next = F;
+            next = TIME;
+            if(enb) begin
+                if(mode == 2'b00) next = TIME;
+                else if (mode == 2'b01) next = F;
+                else if (mode == 2'b10) next = C;
+                else next = F;
+                end
             end
 
-            F: begin  
+            F: begin
             cf = 1;
             segs_n = temp_segs_n;
             an_n = temp_an_n;
             dp_n = temp_dp_n;
-            if(mode ==2'b00) next = TIME;
-            else if (mode == 2'b01) next = TIME;
-            else if (mode == 2'b10) next = C;
-            else next = C;
+            next = F;
+            if(enb) begin
+                if(mode ==2'b00) next = TIME;
+                else if (mode == 2'b01) next = TIME;
+                else if (mode == 2'b10) next = TIME;
+                else next = C;
             end
-            
-            C: begin
+            end
+
+            C: begin  
             cf = 0;
             segs_n = temp_segs_n;
             an_n = temp_an_n;
             dp_n = temp_dp_n;
-            if(mode ==2'b00) next = TIME;
-            else if (mode == 2'b01) next = F;
-            else if (mode == 2'b10) next = TIME;
-            else next = TIME;
+            next = C;
+            if(enb) begin
+                if(mode ==2'b00) next = TIME;
+                else if (mode == 2'b01) next = TIME;
+                else if (mode == 2'b10) next = TIME;
+                else next = TIME;
+                end
             end
+            
+            
             default : begin
             cf = 0;
             segs_n = time_segs_n;
             an_n = time_an_n;
             dp_n = time_dp_n;
-            if(mode == 2'b00) next = TIME;
-            else if (mode == 2'b01) next = F;
-            else if (mode == 2'b10) next = C;
-            else next = F;
+            next = TIME;
             end
+            
         endcase
     end
     
