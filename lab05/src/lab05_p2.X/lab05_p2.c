@@ -6,6 +6,7 @@
  */
 
 #include "ece212.h"
+
 int main() {
     ece212_lafbot_setup();
     while(1){

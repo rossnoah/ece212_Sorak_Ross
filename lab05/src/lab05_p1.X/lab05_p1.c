@@ -8,13 +8,24 @@
 #include "ece212.h"
 int main() {
  ece212_setup();
+ int pos = 0;
+ int mode = 0;
+ int held = 0;
  while(1){
- //add your code here
-     int mode = 0;
-     int i = 0;
-     while(i<4 && i>0){
-         
-         switch(i){
+     if(!BTN11){
+         held = 0;
+     }
+     
+     if(BTN11 && !held){
+         if(mode == 1 ){ 
+             mode = 0;
+         }
+         else if (mode == 0){
+            mode = 1;    
+         }
+         held = 1;
+     }
+     switch(pos){
              
              case(0): 
                 writeLEDs(0b1000);
@@ -29,25 +40,13 @@ int main() {
                 writeLEDs(0b0001);
                 break;    
          }
-         if(BTN11){
-             break;
-         }
-         delayms(150);
-         
-         if(BTN11){
-             break;
-         }
-         
-      i+=(mode == 0 ? 1 : 0);
-     }
      
-     if(BTN11){
-        if(mode == 0) mode =1;
-        else mode = 0;
-     }else{
-         i = mode ==0 ? 0:3;
-     }
+     pos += (mode ==1 ? -1 : 1);
+     if(pos>3) pos = 0;
+     if(pos<0) pos = 3;
      
+     delayms(150);
+
  }
  return (EXIT_SUCCESS);
 }
