@@ -29,78 +29,61 @@ logic [7:0] temp_an_n;
 logic temp_dp_n;
 
 lab03_top LAB3(.clk, .rst, .cf,.tmp_scl,.tmp_sda,.an_n(temp_an_n),.segs_n(temp_segs_n),.dp_n(temp_dp_n));
-dig_clock_top LAB2(.clk, .rst,.adv_hr,.adv_min,.an_n(time_an_n),.segs_n(time_segs_n),.dp_n(time_dp_n));
+dig_clock_top LAB2(.clk, .rst,.adv_hr,.adv_min,.an_n(time_an_n),.segs_n(time_segs_n),.dp_n(time_dp_n).toggle(sw[0]));
 
 period_enb #(.PERIOD_MS(2000)) U_ENB(.clk, .rst, .enb_out(enb));
-//counter_rc_mod #(.MOD(6)) COUNT_STATE(.clk,.rst,.enb,.q(counter));
 
+typedef enum logic [1:0] {
+   TIME = 2'b00, C = 2'b01, F = 2'b10
+} states_t;
 
+states_t state, next;
 
-//always_comb begin
+always_ff @(posedge enb)
+        if (rst) state <= TIME;
+        else state <= next;
     
-//    if(mode == 2'b00)begin cf = 0; end
-//    else if (mode == 2'b01) begin cf = 1; end
-//    else if (mode == 2'b10) begin cf = (counter == 1 || counter == 3 || counter == 5); end
-//    else if (mode == 2'b11) begin cf = (counter == 2 || counter == 5); end
-    
-////        an_n = time_an_n;
-////        segs_n = time_segs_n;
-////        dp_n = time_dp_n;
-    
-    
-    
-//    if(mode == 2'b00) begin
-        
-//        an_n = time_an_n;
-//        segs_n = time_segs_n;
-//        dp_n = time_dp_n;
+    always_comb begin
+        cf = 0;
+        segs_n = time_segs_n;
+        an_n = time_an_n;
+        dp_n = time_dp_n;
+        next = IDLE;
 
-//    end
-//    else if (mode == 2'b01) begin
-        
-//           if(counter==0||counter==2||counter==4) begin
-//        an_n = time_an_n;
-//        segs_n = time_segs_n;
-//        dp_n = time_dp_n;
-//           end
-           
-//           else begin
-           
-//             an_n = temp_an_n;
-//        segs_n = temp_segs_n;
-//        dp_n = temp_dp_n;
-//           end
+        case (state)
+            TIME: begin
+            cf = 0;
+            segs_n = time_segs_n;
+            an_n = time_an_n;
+            dp_n = time_dp_n;
+            if(mode = 2'b00) next = TIME;
+            else if (mode = 2'b01) next = F;
+            else if (mode = 2'b10) next = C;
+            else next = F;
+            end
 
-        
-//    end
-//    else begin
-// an_n = time_an_n;
-//        segs_n = time_segs_n;
-//        dp_n = time_dp_n;
-//end 
-////    else if (mode == 2'b01) begin
-
-////         an_n = temp_an_n;
-////        segs_n = temp_segs_n;
-////        dp_n = temp_dp_n;
-////        end
-//end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            F: begin  
+            cf = 1;
+            segs_n = temp_segs_n;
+            an_n = temp_an_n;
+            dp_n = temp_dp_n;
+            if(mode ==2'b00) next = TIME;
+            else if (mode == 2'b01) next = TIME;
+            else if (mode == 2'b10) next = C;
+            else next = C;
+            end
+            
+            C: begin
+            cf = 0;
+            segs_n = temp_segs_n;
+            an_n = temp_an_n;
+            dp_n = temp_dp_n;
+            if(mode ==2'b00) next = TIME;
+            else if (mode == 2'b01) next = F;
+            else if (mode == 2'b10) next = TIME;
+            else next = TIME;
+            end
+        endcase
+    end
     
 endmodule
