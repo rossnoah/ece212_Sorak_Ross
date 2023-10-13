@@ -1,44 +1,41 @@
 #include "ece212.h"
-
-int main() {
+int main()
+{
     ece212_lafbot_setup();
     int leftSensor, rightSensor;
     RBACK = 0;
     LBACK = 0;
-    int rVal, lVal;
-    int SENSOR_CUTOFF = 340;
-    while (1) {
-        //    delayms(1);
+    // leftSensor = analogRead(LEFT_SENSOR) > 340 ? 1 : 0;
+    // rightSensor = analogRead(RIGHT_SENSOR) > 340 ? 1 : 0;
 
-        leftSensor = analogRead(LEFT_SENSOR) > SENSOR_CUTOFF ? 1 : 0;
-        rightSensor = analogRead(RIGHT_SENSOR) > SENSOR_CUTOFF ? 1 : 0;
-        lVal = analogRead(LEFT_SENSOR);
-        rVal = analogRead(RIGHT_SENSOR);
+    // RFORWARD = 0;
+    // LFORWARD = 65535;
+    // delayms(50);
+    // RFORWARD = 65535;
 
-        if (leftSensor && rightSensor) {
-            writeLEDs(0b1001);
+    while (1)
+    {
+        leftSensor = analogRead(LEFT_SENSOR) > 340 ? 1 : 0;
+        rightSensor = analogRead(RIGHT_SENSOR) > 340 ? 1 : 0;
 
-
-        } else if (leftSensor) {
-
-            writeLEDs(0b1000);
-        } else if (rightSensor) {
-            writeLEDs(0b0001);
-        }
-        if ((leftSensor && rightSensor) || (!leftSensor && !rightSensor)) {
+        if (leftSensor && !rightSensor)
+        {
+            // go straight
             RFORWARD = 65535;
             LFORWARD = 65535;
-        } else if (leftSensor) {
-            RFORWARD = 65535 / 1;
-            LFORWARD = 65535 / (3.2+((lVal-SENSOR_CUTOFF)/100));
-        } else if (rightSensor) {
-            RFORWARD = 65535 / (3.2+((rVal-SENSOR_CUTOFF)/100));
-            LFORWARD = 65535 / 1;
         }
-
-
+        else if (!leftSensor && !rightSensor)
+        {
+            // turn left
+            RFORWARD = 65535;
+            LFORWARD = 0;
+        }
+        else if ((!leftSensor && rightSensor) || (leftSensor && rightSensor))
+        {
+            // turn right
+            RFORWARD = 0;
+            LFORWARD = 65535;
+        }
     }
     return (EXIT_SUCCESS);
 }
-
-
