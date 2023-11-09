@@ -1,0 +1,1 @@
+$(MP_EXTRA_AS_PRE)  -c -mprocessor=$(MP_PROCESSOR_OPTION) -Wa,--defsym=__MPLAB_BUILD=1$(MP_EXTRA_AS_POST),--gdwarf-2 C:\Users\rossnoa\Desktop\ece212_Sorak_Ross\lab07\encode_string_test.X\encode_string_test.s
