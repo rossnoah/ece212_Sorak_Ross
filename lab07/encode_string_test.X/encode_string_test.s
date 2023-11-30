@@ -28,13 +28,19 @@ done:
 #
 ###########################################################################
         
+        
 encode_char:
     slti $t0, $a0, 65			
-    slti $t1, $a0, 90
+    slti $t1, $a0, 91
     
-    or	$t0, $t1, $t0		# $t0 = $t1 | 0t2
+    
+    addi $t2, $0, 1
+    xor	 $t0, $t2, $t0
 
-    beq	$t0, $t2, returnC	# if $t0 == 2t1 then goto returnC
+    
+    and	$t0, $t1, $t0		# $t0 = $t1 | 0t2
+
+    bne	$t0, $t2, returnC	# if $t0 == 2t1 then goto returnC
     add	$s0, $s0, $s0		# NOOP
 
 
@@ -57,8 +63,10 @@ encode_char:
     add	$s0, $s0, $s0		# NOOP
     
 returnC:
-    add	$v0, $t0, $0	# Put in v0
+    add	$v0, $a0, $0	# Put in v0
     jr $ra
+    add	$s0, $s0, $s0		# NOOP
+
     
 ###########################################################################
 #
@@ -70,13 +78,27 @@ encode_string:
     addi $sp, $sp, -8 # make room on the stack for 2 registers
     sw $a0, 0($sp) # save $a0 on the stack
     sw $ra, 4($sp) # save $ra on the stack
-
-    bne	$s0, $0, loop
+    add $t4, $s0, $a0
+#     add $t5, $0, $0
+#     bne	$s0, $0, loop
+#     add $0, $0, $0
 
 loop:
-    lw $a, $a0, 0
+    lbu $a0, 0($t4) 
+    beq $a0, $0, returnEncodeString	
+    add $0, $0, $0
     jal	encode_char
+    add $0, $0, $0
+    sb $v0, 0($t4) 
+    addi $t4, $t4, 1
     j loop
+
+returnEncodeString:
+    lw		$a0, 0($sp)		# 
+    lw      $ra, 4($sp)
+    j		$ra				# jump to $ra
+    
+
 
 
 
