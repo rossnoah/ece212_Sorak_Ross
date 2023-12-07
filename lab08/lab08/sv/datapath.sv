@@ -17,7 +17,7 @@
 module datapath(
     input  logic        clk, reset,
     input logic         memtoreg, pcsrc, alusrc,
-    input logic         regdst, regwrite, jump,
+    input logic         regdst, regwrite, jump,doSignExt,
     input logic [2:0]   alucontrol,
     output logic        zero,
     output logic [31:0] pc,
@@ -73,7 +73,7 @@ module datapath(
     regfile     U_RF(.clk(clk), .we3(regwrite), .ra1(rs), .ra2(rt),
                      .wa3(writereg), .wd3(result), .rd1(srca), .rd2(writedata));
 
-    signext     U_SE(.a(immed), .y(signimm));
+    signext     U_SE(.a(immed), .y(signimm),.doSignExt);
 
     // ALU logic
     mux2 #(32)  U_SRCBMUX(.d0(writedata), .d1(signimm), .s(alusrc), .y(srcb));

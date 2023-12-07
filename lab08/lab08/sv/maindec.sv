@@ -14,7 +14,7 @@
 
 module maindec (
 	input mips_decls_p::opcode_t opcode,
-	output logic memtoreg, memwrite, branch, alusrc, regdst, regwrite, jump,
+	output logic memtoreg, memwrite, branch, alusrc, regdst, regwrite, jump, isBNE, doSignExt,
 	output logic [1:0] aluop
 	);
 
@@ -32,6 +32,8 @@ module maindec (
 				memtoreg = 1'b0;
 				jump = 1'b0;
 				aluop = 2'b10;
+				isBNE = 1'b0;
+				doSignExt = 1'b1;
 			end
 			OP_LW: begin
 				regwrite = 1'b1;
@@ -42,6 +44,8 @@ module maindec (
 				memtoreg = 1'b1;
 				jump = 1'b0;
 				aluop = 2'b00;
+				isBNE = 1'b0;
+				doSignExt = 1'b1;
 			end
 			OP_SW: begin
 				regwrite = 1'b0;
@@ -52,6 +56,8 @@ module maindec (
 				memtoreg = 1'b0;
 				jump = 1'b0;
 				aluop = 2'b00;
+				isBNE = 1'b0;
+				doSignExt = 1'b1;
 			end
 			OP_BEQ: begin
 				regwrite = 1'b0;
@@ -62,6 +68,20 @@ module maindec (
 				memtoreg = 1'b0;
 				jump = 1'b0;
 				aluop = 2'b01;
+				isBNE = 1'b0;
+				doSignExt = 1'b1;
+			end
+			OP_BNE: begin
+				regwrite = 1'b0;
+				regdst = 1'b0;
+				alusrc = 1'b0;
+				branch = 1'b1;
+				memwrite = 1'b0;
+				memtoreg = 1'b0;
+				jump = 1'b0;
+				aluop = 2'b01;
+				isBNE = 1'b1;
+				doSignExt = 1'b1;
 			end
 			OP_ADDI: begin
 				regwrite = 1'b1;
@@ -72,7 +92,22 @@ module maindec (
 				memtoreg = 1'b0;
 				jump = 1'b0;
 				aluop = 2'b00;
+				isBNE = 1'b0;
+				doSignExt = 1'b1;
 			end
+			OP_ORI: begin
+				regwrite = 1'b1;
+				regdst = 1'b0;
+				alusrc = 1'b1;
+				branch = 1'b0;
+				memwrite = 1'b0;
+				memtoreg = 1'b0;
+				jump = 1'b0;
+				aluop = 2'b11;
+				isBNE = 1'b0;
+				doSignExt = 1'b0;
+
+			end 
 			OP_J: begin
 				regwrite = 1'b0;
 				regdst = 1'b0;
@@ -82,6 +117,8 @@ module maindec (
 				memtoreg = 1'b0;
 				jump = 1'b1;
 				aluop = 2'b00;
+				isBNE = 1'b0;
+				doSignExt = 1'b1;
 			end
 			default: begin     // unimplemented - use 'x to indicate error
 				regwrite = 1'bx;
@@ -92,6 +129,8 @@ module maindec (
 				memtoreg = 1'bx;
 				jump = 1'bx;
 				aluop = 2'bxx;
+				isBNE = 1'bx;
+				doSignExt = 1'bx;
 			end
 		endcase // case (opcode)
 	end

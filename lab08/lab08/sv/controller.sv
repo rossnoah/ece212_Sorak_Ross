@@ -20,18 +20,19 @@ module controller(
     output logic       memtoreg, memwrite,
     output logic       pcsrc, alusrc,
     output logic       regdst, regwrite,
-    output logic       jump,
+    output logic       jump, doSignExt,
     output logic [2:0] alucontrol
     );
 
     logic [1:0] aluop;
     logic       branch;
+    logic isBNE;
 
     maindec U_MD(.opcode, .memtoreg, .memwrite, .branch,
-                 .alusrc, .regdst, .regwrite, .jump, .aluop);
+                 .alusrc, .regdst, .regwrite, .jump, .aluop, .isBNE, .doSignExt);
 
     aludec  U_AD(.funct, .aluop, .alucontrol);
 
-    assign pcsrc = branch & zero;
+    assign pcsrc = branch & zero || !zero && isBNE;
 
 endmodule
