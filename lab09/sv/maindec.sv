@@ -48,6 +48,8 @@ module maindec(
   // Finish entering the next state logic below.  We've completed the first
   // two states, FETCH and DECODE, for you.  See Figure 7.42 in the book.
 
+
+
   // next state logic
   always_comb begin
       case(state)
@@ -64,19 +66,27 @@ module maindec(
               endcase
           end
       // Add code here
-      MEMADR:
-      MEMRD:
-      MEMWB:
-      MEMWR:
-      RTYPEEX:
-      RTYPEWB:
-      BEQEX:
-      ADDIEX:
-      ADDIWB:
-      JEX:
+      MEMADR:begin
+              case(opcode)
+                  OP_LW:      next = MEMRD;
+                  OP_SW:      next = MEMWR;
+                  default:     next = ERROR; // should never happen
+              endcase
+          end
+
+      MEMRD: next = MEMWB;
+      MEMWB: next = FETCH;
+      MEMWR: next = FETCH;
+      RTYPEEX: next = RTYPEWB;
+      RTYPEWB: next = FETCH;
+      BEQEX: next = FETCH;
+      ADDIEX: next = ADDIWB;
+      ADDIWB: next = FETCH;
+      JEX: next = FETCH;
       ERROR:   next = ERROR;  // stay in ERROR state until reset
       default: next = ERROR;  // should never happen but go to ERROR if it does
-  endcase
+     endcase
+  end
 
   // output logic
 
@@ -112,6 +122,55 @@ module maindec(
               alusrcb = 2'b11;
               aluop = 2'b00;
           end
+          MEMADR: begin
+            alusrca=1'b1;
+            alusrcb=2'b01;
+            aluop=2'b00;
+          end
+          MEMRD: begin
+            iord=1'b1;
+
+          end
+          MEMWB: begin
+            regdst=1'b1;
+            memtoreg=1'b1;
+            regwrite=1'b1;
+          end
+          MEMWR: begin
+            iord=1'b1;
+            memwrite=1'b1;
+          end
+          RTYPEEX: begin
+             alusrca=1'b1;
+            alusrcb=2'b00;
+            aluop=2'b10;
+          end   
+          RTYPEWB: begin
+             regdst=1'b1;
+            memtoreg=1'b0;
+            regwrite=1'b1;
+          end   
+        BEQEX: begin
+            alusrca=1'b1;
+            alusrcb=2'b00;
+            aluop=2'b01;
+            pcsrc=2'b01;
+            branch=1'b1;
+        end
+        ADDIEX: begin
+            alusrca=1'b1;
+            alusrcb=2'b10;
+            aluop=2'b00;
+        end 
+        ADDIWB: begin
+            regdst=1'b0;
+            memtoreg=1'b0;
+            regwrite=1'b1;
+        end
+        JEX: begin
+            pcsrc=2'b10;
+            pcwrite=1'b1;
+        end
 
           // add code here to specify outputs for remaining states
           // note you only need to add values specified in each state bubble

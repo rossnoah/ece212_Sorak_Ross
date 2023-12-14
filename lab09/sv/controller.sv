@@ -24,6 +24,7 @@ module controller(
   // Add combinational logic (e.g. an assign statement)
   // to produce the PCEn signal (pcen) from the branch,
   // zero, and pcwrite signals
+  assign pcen = (zero && branch) || pcwrite;
 
 
 endmodule
