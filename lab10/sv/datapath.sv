@@ -37,11 +37,8 @@ module datapath(
    logic [31:0]                     instr;
    logic [4:0]                      rs, rt, rd;  // register fields
    logic [15:0]                     immed;       // i-type immediate field
-   logic [25:0]                     jmpimmed;    // j-type pseudo-address
+   logic [25:0]                     jmpimmed;    // j-type pseud
 
-   logic [31:0] pc, pcnext, aluresult, aluout, data, regresult, rd1, rd2, a, signimm, srca, srcb, shiftedby2, pcjump;
-   
-   logic [4:0] writereg;
   // extract instruction fields from instruction
    assign opcode = opcode_t'(instr[31:26]);
    assign funct = funct_t'(instr[5:0]);
@@ -61,46 +58,43 @@ module datapath(
    // Remember to give your instantiated modules applicable instance names
    // such as U_PCREG (PC register), U_WDMUX (Write Data Mux), etc.
    // so it's easier to find them during simulation and debugging.
-
    
+   // INSTANTIATIONS
 
 
+    logic [4:0] writereg;
+    logic [31:0] pc, pcnext, pcjump, rd1, rd2, aout, signimm, signimmshifted2;
+    logic [31:0] srca, srcb, data, regresult, aluout, aluresult;
 
-    flopenr #(32) U_PCREG(.clk(clk), .reset(reset), .en(pcen), .d(pcnext), .q(pc));
-    mux2 #(32) MUX2_IORD(.d0(pc), .d1(aluout), .s(iord), .y(adr) );
+    flopenr #(32) PC_REG  (.clk, .reset, .en(pcen), .d(pcnext), .q(pc));
 
-    flopr #(32) U_MDR(.clk(clk), .reset(reset), .d(readdata), .q(data));
-    flopenr #(32) U_IR(.clk(clk), .reset(reset), .en(irwrite), .d(readdata), .q(instr));
+    mux2 #(32) MUX2_IORD (.d0(pc), .d1(aluout), .s(iord), .y(adr)); 
+    
+    flopenr #(32) IR_REG (.clk, .reset, .en(irwrite), .d(readdata), .q(instr));
 
-    mux2 #(32) MUX2_MEMTOREG(.d0(aluout), .d1(data), .s(memtoreg), .y(regresult) );
+    flopr #(32) MDR_REG (.clk, .reset, .d(readdata), .q(data));
+    
+    mux2 #(32) MUX2_MEMTOREG(.d0(aluout), .d1(data), .s(memtoreg), .y(regresult));
 
     mux2 #(5) MUX2_REGDST(.d0(rt), .d1(rd), .s(regdst), .y(writereg));
+    
+    regfile U_REGFILE (.clk, .wd3(regresult), .we3(regwrite), .ra1(rs), .ra2(rt), .wa3(writereg), .rd1, .rd2);
 
-    regfile REGFILE(.clk(clk), .wd3(regresult), .ra1(rs), .ra2(rt), .wa3(writereg), .we3(regwrite), .rd1, .rd2 );
-
-    flopr #(32) U_A(.clk(clk), .reset(reset), .d(rd1), .q(a));
-    flopr #(32) U_B(.clk(clk), .reset(reset), .d(rd2), .q(writedata));
-
-    mux2 #(32) MUX2_ALUSRCA(.d0(pc), .d1(a), .s(alusrca), .y(srca) );
-
-    signext EXTEND(.a(immed), .y(signimm));
-
-    sl2 SHIFT2ALU (.a(signimm), .y(shiftedby2) );
-
-    mux4 #(32) MUX2_ALUSRCB(.d0(writedata), .d1(32'd4), .d2(signimm), .d3(shiftedby2), .s(alusrcb), .y(srca) );
-
-
-    alu ALU (.a(srca), .b(srcb), .f(alucontrol), .zero, .y(aluresult));
-
-
-    flopr #(32) U_ALUOUT(.clk(clk), .reset(reset), .d(aluresult), .q(aluout));
-
-    sl2 SHIFT2PC (.a(jmpimmed), .y(pcjump) );
-
-    mux3 #(32) PCSRC (.d0(aluresult), .d1(aluout), .d2({pc[31:28],pcjump}),  .s(alusrcb), .y(pcnext) );
+    flopr #(32) A (.clk, .reset, .d(rd1), .q(aout));
+    flopr #(32) B (.clk, .reset, .d(rd2), .q(writedata));
+    
+    mux2 #(32) MUX2_ALUSRCA(.d0(pc), .d1(aout), .s(alusrca), .y(srca));
+    
+    signext U_SIGNEXT (.a(immed), .y(signimm));
+    assign signimmshifted2 = signimm << 2;
+    
+    mux4 #(32) U_MUX_ALUSRCB(.d0(writedata), .d1(32'd4), .d2(signimm), .d3(signimmshifted2), .s(alusrcb), .y(srcb));
+    alu U_ALU (.a(srca), .b(srcb), .f(alucontrol), .y(aluresult), .zero(zero));
+    
+    flopr#(32) U_ALU_REG(.clk, .reset, .d(aluresult), .q(aluout));
 
 
-
-
+    assign pcjump = { pc[31:28] ,(jmpimmed << 2)};
+    mux3 #(32) U_MUX_PCSRC(.d0(aluresult), .d1(aluout), .d2(pcjump), .s(pcsrc), .y(pcnext));
 
 endmodule
