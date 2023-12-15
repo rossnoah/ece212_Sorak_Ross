@@ -124,7 +124,7 @@ module maindec(
           end
           MEMADR: begin
             alusrca=1'b1;
-            alusrcb=2'b01;
+            alusrcb=2'b10;
             aluop=2'b00;
           end
           MEMRD: begin
@@ -132,7 +132,7 @@ module maindec(
 
           end
           MEMWB: begin
-            regdst=1'b1;
+            regdst=1'b0;
             memtoreg=1'b1;
             regwrite=1'b1;
           end

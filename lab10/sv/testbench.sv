@@ -39,6 +39,7 @@ module testbench();
           $stop;
         end else if (dataadr !== 80) begin
           $display("Simulation failed");
+          $display(writedata);
           $stop;
         end
       end
